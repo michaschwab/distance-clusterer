@@ -1,4 +1,5 @@
 "use strict";
+if(!exports) { var exports = {};}
 Object.defineProperty(exports, "__esModule", { value: true });
 var Clusterer = /** @class */ (function () {
     function Clusterer() {

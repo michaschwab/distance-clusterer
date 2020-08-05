@@ -1,6 +1,6 @@
 {
   "name": "score-clusterer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JS clustering algorithm based on a user-defined scoring function and a threshold above which items and clusters are merged.",
   "main": "clusterer.ts",
   "scripts": {

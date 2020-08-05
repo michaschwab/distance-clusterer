@@ -1,0 +1,76 @@
+<svg width="300" height="300" id="original" style="border: 1px solid #000"><text y="15">Original</text></svg>
+<svg width="300" height="300" id="clustered" style="border: 1px solid #000"><text y="15">Clustered</text></svg><br />
+
+Neighbor points considered:
+<input id="neighborCount" type="number" value="30" min="1" max="100" onchange="updateClusters()" />
+More is more accurate but slower.<br />
+
+Gaussian sigma for scoring distances:
+<input id="sigma" type="number" value="50" min="1" max="100" onchange="updateClusters()" />
+At this distance, items get a score of 0.68.<br />
+
+Min Score for Merging:
+<input id="mergeScore" type="number" value="0.4" min="0.01" max="1" step="0.02" onchange="updateClusters()" />
+Higher minimum scores lead to fewer clusters.
+
+
+<script src="//d3js.org/d3.v5.js"></script>
+<!--<script src="https://unpkg.com/score-clusterer@1.0.1/clusterer.js"></script>-->
+<script src="./clusterer.js"></script>
+<script>
+var random = new Array(100).fill(null)
+    .map(function () { return { x: Math.random() * 300, y: Math.random() * 300 }; });
+var colors = new Array(100).fill(null)
+    .map(function () { return '#' + 'zzzzzz'.split('')
+        .map(function () { return ('0123456789abcdef'.split(''))[Math.floor(Math.random() * 16)]; }).join(''); });
+
+d3.select('#original').selectAll('circle').data(random).enter()
+    .append('circle')
+    .attr('cx', function (d) { return d.x; })
+    .attr('cy', function (d) { return d.y; })
+    .attr('r', 3).attr('fill', '#ccc').attr('stroke-width', 3);
+var getAverage = function (values, key) {
+    return values.map(function (d) { return d[key]; }).reduce(function (d1, d2) { return d1 + d2; }) / values.length;
+};
+
+var clusterer = new Clusterer()
+    .setData(random)
+    .setSortValue(function (a) { return getAverage(a.getData(), 'x'); });
+
+var updateClusters = function () {
+    var neighborCount = parseInt(document.getElementById('neighborCount').value);
+    var sigma = parseInt(document.getElementById('sigma').value);
+    var mergeScore = parseFloat(document.getElementById('mergeScore').value);
+
+    clusterer.setScore(function (a, b) {
+        var _a = [getAverage(a.getData(), 'x'), getAverage(a.getData(), 'y')], ax = _a[0], ay = _a[1];
+        var _b = [getAverage(b.getData(), 'x'), getAverage(b.getData(), 'y')], bx = _b[0], by = _b[1];
+        var distance = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+        return getGaussian(0, sigma)(distance);
+    }).cluster(neighborCount, mergeScore);
+
+    var clusterData = clusterer.getClusters().map(function (c) { return c.getData(); })
+        .sort(function (a, b) { return getAverage(a, 'x') - getAverage(b, 'x') + getAverage(a, 'y') - getAverage(b, 'y'); });
+
+    clusterData.forEach(function (data, index) {
+        d3.select('#original').selectAll('circle').filter(function (pos) { return data.includes(pos); })
+            .attr('fill', colors[index]);
+    });
+
+    var clusters = d3.select('#clustered').selectAll('circle').data(clusterData);
+    clusters.exit().remove();
+    clusters.enter().append('circle').merge(clusters)
+        .attr('cx', function (d) { return getAverage(d, 'x'); })
+        .attr('cy', function (d) { return getAverage(d, 'y'); })
+        .attr('r', function (d) { return 3 * Math.sqrt(d.length); })
+        .attr('fill', function (d, i) { return colors[i]; })
+        .on('mouseover', function (d) {
+            d3.select('#original').selectAll('circle').filter(function (pos) { return d.includes(pos); })
+                .attr('stroke', 'red');
+        }).on('mouseleave', function (d) {
+            d3.select('#original').selectAll('circle').filter(function (pos) { return d.includes(pos); })
+                .attr('stroke', '');
+        });
+};
+updateClusters();
+</script>
