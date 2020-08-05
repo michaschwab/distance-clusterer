@@ -1,0 +1,29 @@
+{
+  "name": "distance-clusterer",
+  "version": "1.0.0",
+  "description": "A JS clustering algorithm based on a user-defined distance function and a threshold above which items and clusters are merged.",
+  "main": "test.ts",
+  "scripts": {
+    "compile": "rollup -c rollup.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaschwab/distance-clusterer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michaschwab/distance-clusterer/issues"
+  },
+  "homepage": "https://github.com/michaschwab/distance-clusterer#readme",
+  "devDependencies": {
+    "rollup": "^2.23.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript": "^1.0.1"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  }
+}
